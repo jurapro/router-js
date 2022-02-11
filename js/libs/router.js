@@ -15,9 +15,14 @@ export default class Router {
             const route = this.routes.find(route => route.path === e.detail);
             if (!route) return;
 
+            if (!route.element) {
+                const elementName = 'template-' + route.component.name.toLocaleLowerCase();
+                if (!customElements.get(elementName)) customElements.define(elementName, route.component);
+                route.element = document.createElement(elementName);
+            }
             document.querySelector(this.view).dispatchEvent(new CustomEvent(
                 'router-view', {
-                    detail: route.component
+                    detail: route.element
                 }
             ));
         });
@@ -32,10 +37,7 @@ class RouterView extends HTMLElement {
     bindEvents() {
         this.addEventListener('router-view', (e) => {
             this.innerHTML = '';
-            const elementName = 'template-' + e.detail.name.toLocaleLowerCase();
-            this.append(document.createElement(elementName));
-
-            if (!customElements.get(elementName)) customElements.define(elementName, e.detail);
+            this.append(e.detail);
         });
     }
 }

@@ -1,4 +1,4 @@
-const host = 'http://localhost/example-app/api-cafe';
+const host = 'http://localhost/api-cafe';
 const f = async (url, method = 'get', token = null, data = []) => {
     const options = {
         method: method.toUpperCase(),

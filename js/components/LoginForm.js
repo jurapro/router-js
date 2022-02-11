@@ -9,13 +9,17 @@ export default class LoginForm extends HTMLElement {
             login: '',
             password: ''
         }
+        this.renderer = false;
     }
 
     connectedCallback() {
-        this.render(this.getTemplateLogin());
+        if (!this.renderer) {
+            this.render(this.getTemplateLogin());
+        }
     }
 
     render(template) {
+        this.renderer = true;
         this.innerHTML = template;
         this.attachModel();
         this.bindEvents();
@@ -62,20 +66,16 @@ export default class LoginForm extends HTMLElement {
         });
 
         document.addEventListener('user-out', () => {
+            this.user = null;
             this.render(this.getTemplateLogin());
         });
     }
 
-    async login() {
+    login() {
         if (!this.data.login || !this.data.password) return;
-/*        let res = await login(this.data);
-        if (res.error) {
-            this.querySelector('.message').innerHTML = 'Не правильный логин или пароль';
-            return;
-        }
-        dEvent('user-login', {login: this.data.login, user_token: res.data.user_token});*/
+        this.style.display = 'none';
         login(this.data)
-            .then(res=>{
+            .then(res => {
                 this.style.display = '';
                 if (res.error) {
                     this.querySelector('.message').innerHTML = 'Не правильный логин или пароль';
@@ -83,16 +83,16 @@ export default class LoginForm extends HTMLElement {
                 }
                 dEvent('user-login', {login: this.data.login, user_token: res.data.user_token});
             });
-        this.style.display = 'none';
     }
 
-    async out() {
-        console.log(this.user)
+    out() {
         if (!this.user.user_token) return;
-        let res = await logout('logout', 'get', this.user.user_token, null);
-        if (!res.message) {
-            dEvent('user-out');
-        }
+        this.style.display = 'none';
+        logout('logout', 'get', this.user.user_token, null)
+            .then(res => {
+                this.style.display = '';
+                dEvent('user-out');
+            });
     }
 
 }
